@@ -518,10 +518,10 @@ FAB.abilityConfig     = {
   [25352]  = { 147643 }, -- aspect of terror
   [37470]  = { 147643 }, -- mass hysteria
   [37475]  = {        }, -- manifestation of terror
-  [33211]  = {  38517 }, -- summon shade
-  [35434]  = {  35438 }, -- dark shade
-  [35441]  = {  38528 }, -- shadow image
-  [35445]  = {  38528 }, -- shadow image proc
+  [33211]  = {        }, -- summon shade
+  [35434]  = {        }, -- dark shade
+  [35441]  = {        }, -- shadow image
+  [35445]  =    false  , -- shadow image proc
   [25411]  = {  25411 }, -- consuming darkness
   [36485]  = {  36485 }, -- veil of blades
   [36493]  = {  36493 }, -- bolstering darkness
@@ -960,11 +960,11 @@ FAB.fakeClassEffects  = {
   -- [2] = {},
 
   -- Nightblade
-  --[3] = {
-    --[33211] = { duration = GetAbilityDuration(33211) / 1000, id = 33211 }, -- Summon Shade
-    --[35434] = { duration = GetAbilityDuration(35438) / 1000, id = 35438 }, -- Dark Shade
-    --[35441] = { duration = GetAbilityDuration(35441) / 1000, id = 35441 }  -- Shadow Image
-  --},
+  [3] = {
+    [33211] = { duration = GetAbilityDuration(33211) / 1000, id = 33211 }, -- Summon Shade
+    [35434] = { duration = GetAbilityDuration(35438) / 1000, id = 35438 }, -- Dark Shade
+    [35441] = { duration = GetAbilityDuration(35441) / 1000, id = 35441 }  -- Shadow Image
+  },
 
   -- Warden
   --[4] = {},
