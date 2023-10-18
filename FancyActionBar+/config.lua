@@ -465,7 +465,7 @@ FAB.abilityConfig     = {
   [85804]  = {  85804 }, -- enchanted forest
   [85807]  = {  85807 }, -- healing thicket
   [86122]  = {  61694 }, -- frost cloak
-  [86126]  = {  61694 }, -- expansive frost cloak
+  [86126]  = {        }, -- expansive frost cloak
   [86130]  = {  61694 }, -- ice fortress
   [86161]  = {  86161 }, -- impaling shards
   [86165]  = {  86165 }, -- gripping shards
@@ -967,7 +967,9 @@ FAB.fakeClassEffects  = {
   },
 
   -- Warden
-  --[4] = {},
+  [4] = {
+    [86126] = { duration = GetAbilityDuration(86126) / 1000, id = 86126 } -- expansive frost cloak
+  },
 
   -- Necromancer
   --[5] = {},
