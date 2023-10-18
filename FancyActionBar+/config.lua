@@ -693,11 +693,11 @@ FAB.stackMap          = {
   [100306] = 100306,  -- force pulse (vAS destro)
   [100474] = 100474,  -- chaotic whirlwind (vAS dw)
 
-  [61905]  =  61902,  -- Grim Focus
-  [61920]  =  61919,
-  [61928]  =  61927,
+  [122585]  =  61902,  -- Grim Focus
+  [122586]  =  61919,  -- Merciless Resolve
+  [122587]  =  61927,  -- Relentless Focus
 
-  [130293] =  24165,  -- Bound Armaments
+  [203447] =  24165,  -- Bound Armaments
 
   [51392]  =  51392,  -- Streak Fatigue
 
