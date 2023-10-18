@@ -85,7 +85,7 @@ FAB.toggles                       = {}    -- works together with effects to upda
 FAB.debuffs                       = {}    -- effects for debuffs to update if they are active on target
 
 FAB.lastTaunt                     = nil
-FAB.tauntId                       = 38254
+--FAB.tauntId                       = 38254
 FAB.activeTaunts                  = {}
 FAB.tauntSlots                    = {}
 FAB.tauntTimers                   = {}
@@ -757,17 +757,19 @@ local function ResetOverlayDuration(overlay)
   if overlay then
     local durationControl = overlay:GetNamedChild('Duration')
     local bgControl       = overlay:GetNamedChild('BG')
-    durationControl:SetText('')
-    bgControl:SetHidden(true)
+    local stacksControl   = overlay:GetNamedChild('Stacks')
+
+    if durationControl  then durationControl:SetText('')  end
+    if bgControl        then bgControl:SetHidden(true)    end
+    if stacksControl    then stacksControl:SetText('')    end
+
     if overlay.effect then
       if FAB.stacks[overlay.effect.id] then
         local _, _, currentStacks = CheckForActiveEffect(overlay.effect.id)
         FAB.stacks[overlay.effect.id] = currentStacks
         FAB.HandleStackUpdate(overlay.effect.id)
       end
-    else
-      local stacksControl = overlay:GetNamedChild('Stacks')
-      stacksControl:SetText('')
+    -- else
     end
   end
 end
@@ -862,6 +864,11 @@ local function FormatTextForDurationOfActiveEffect(fading, effect, duration)
     if (SV.delayFade and not effect.instantFade) then
       local delayEnd = (effect.endTime + SV.fadeDelay) - time()
       if delayEnd > 0 then timer = zo_max(0, zo_ceil(duration)) end
+    end
+
+    if effect.id == FAB.sCorch.id1 then
+      FAB.stacks[effect.id] = 0
+      FAB.HandleStackUpdate(effect)
     end
 
     if effect.id == FAB.deepFissure.id1 then
@@ -1708,7 +1715,7 @@ function CreateOverlay(index)                         -- create normal skill but
     overlay:ClearAnchors()
     overlay.activeEffects = {}
   else
-    overlay = CreateControlFromVirtual('ActionButtonOverlay', ACTION_BAR, template, index)
+    overlay       = CreateControlFromVirtual('ActionButtonOverlay', ACTION_BAR, template, index)
     overlay.timer = overlay:GetNamedChild('Duration')
     overlay.bg    = overlay:GetNamedChild('BG')
     overlay.stack = overlay:GetNamedChild('Stacks')
@@ -1745,7 +1752,7 @@ function CreateQuickSlotOverlay()                     -- create quickslot button
     ApplyTemplateToControl(overlay, template)
     overlay:ClearAnchors()
   else
-    overlay = CreateControlFromVirtual('QuickSlotOverlay', ACTION_BAR, template, index)
+    overlay       = CreateControlFromVirtual('QuickSlotOverlay', ACTION_BAR, template, index)
     FAB.qsOverlay = overlay
   end
   return overlay
@@ -2293,7 +2300,7 @@ local function ShouldTrackAsDebuff(id, tag)
   return true
 end
 
-local function ShouldHideIfNotOnTarget(Id)
+local function ShouldHideIfNotOnTarget(Id) -- a setting I didn't finish making yet.
   local hide
   if FAB.constants.hideOnNoTargetList[id]
   then hide = FAB.constants.hideOnNoTargetList[id]
@@ -2301,19 +2308,25 @@ local function ShouldHideIfNotOnTarget(Id)
   return hide
 end
 
-local fdNum    = 0
-local fdStacks = {}
+local fdNum     = 0
+local fdStacks  = {}
+local lastCW    = 0   -- track when last crystal weapon debuff was applied
 local function HandleSpecial(id, change, updateTime, beginTime, endTime, unitTag, unitId)
   -- abilities that have multiple trigger ids.
   -- individual handling for each of them below.
-  local effect
-  local update = true
+  local effect        -- the ability we are updating
+  local update = true -- update the stacks display for the ability. not sure why I called it this.
 
   if (change == EFFECT_RESULT_GAINED or change == EFFECT_RESULT_UPDATED) then
 
     if (id == 40465) then -- scalding rune placed
       effect = FAB.effects[id]
       update = false
+
+    elseif (id == 46331) then -- crystal weapon
+      effect = FAB.effects[id]
+      FAB.stacks[effect.id] = 2
+      update = true
 
     elseif (id == FAB.tauntId) then
       update = false
@@ -2334,9 +2347,9 @@ local function HandleSpecial(id, change, updateTime, beginTime, endTime, unitTag
 
     elseif (FAB.traps[id] and endTime - beginTime > 2) then
       effect = FAB.effects[FAB.traps[id]]
-    --   FAB.trapTimers[effect.id] = endTime
-    --   UpdateEffect(effect)
-    --   return
+      -- FAB.trapTimers[effect.id] = endTime
+      -- UpdateEffect(effect)
+      -- return
 
     elseif FAB.meteor[id] then
       effect = FAB.effects[FAB.meteor[id]]
@@ -2351,12 +2364,18 @@ local function HandleSpecial(id, change, updateTime, beginTime, endTime, unitTag
     elseif (id == 37475) then -- manifestation of terror cast
       effect                = FAB.effects[id]
       FAB.stacks[effect.id] = 2
-      endTime               = endTime - 2
+      endTime               = endTime - 0
 
     elseif (id == 76634) then -- manifestation of terror trigger
       effect            = FAB.effects[37475]
       FAB.stacks[37475] = FAB.stacks[37475] - 1
       if FAB.stacks[37475] <= 0 then endTime = updateTime end
+
+    elseif id == FAB.sCorch.id1 then
+      effect = FAB.effects[id]
+      if not FAB.stacks[id] then FAB.stacks[id] = 0 end
+      FAB.stacks[id]  = 2
+      endTime         = updateTime + 9
 
     elseif id == FAB.deepFissure.id1 then
       effect = FAB.effects[id]
@@ -2388,6 +2407,13 @@ local function HandleSpecial(id, change, updateTime, beginTime, endTime, unitTag
       effect = FAB.effects[FAB.meteor[id]]
       effect.endTime = endTime
 
+    elseif (id == 46331) then -- crystal weapon
+      -- if unitTag == 'reticleover' then return end
+      effect = FAB.effects[id]
+      FAB.stacks[effect.id] = 0
+      effect.endTime = endTime
+      update = true
+
     elseif (id == FAB.tauntId) then
       update = false
 
@@ -2399,6 +2425,17 @@ local function HandleSpecial(id, change, updateTime, beginTime, endTime, unitTag
         end
         FAB.activeTaunts[unitId] = nil
       end
+
+    elseif id == FAB.sCorch.id1 then
+      effect = FAB.effects[id]
+      if FAB.stacks[id] == 2 then FAB.stacks[id] = 1 end
+
+    elseif id == FAB.sCorch.id2 then
+      effect = FAB.effects[FAB.sCorch.id1]
+
+      if effect.endTime <= updateTime
+      then FAB.stacks[FAB.sCorch.id1] = 0
+      else update = false end
 
     elseif id == FAB.deepFissure.id1 then
       effect = FAB.effects[id]
@@ -2694,12 +2731,12 @@ local function Initialize()
 
       -- lastButton = index
 
-      if effect and effect.id == FAB.tauntId then
+      if effect and effect.id == FAB.tauntId then  -- to track which taunt skill was used and which button it is assigned to
         FAB.lastTaunt = index
         -- d("Taunt cast from button " .. index)
       end
 
-      if (i and FAB.activeCasts[i] == nil and not FAB.ignore[id]) then
+      if (i and FAB.activeCasts[i] == nil and not FAB.ignore[id]) then -- track when the skill was used and ignore other events for it that is lower than the GCD
         if (abilityConfig[id] and abilityConfig[id] ~= false) then
           FAB.activeCasts[i] = {slot = index, cast = t, begin = 0, fade = 0 }
         end
@@ -2759,7 +2796,7 @@ local function Initialize()
 
     local t = time()
 
-    if FAB.specialIds[abilityId] then
+    if FAB.specialIds[abilityId] then -- abilities that need to be handled differently.
       HandleSpecial(abilityId, change, t, beginTime, endTime, unitTag, unitId)
       return
     end
@@ -2771,18 +2808,30 @@ local function Initialize()
       abilityId = FAB.traps[abilityId]
     end
 
+    if (abilityId == 143808 and change == EFFECT_RESULT_GAINED) then -- crystal weapon. remove a stack when the debuff is applied.
+      local pCW = t - lastCW
+      if (FAB.effects[46331] and pCW > 0.5) then -- filter out double events
+        lastCW = t
+        if (FAB.stacks[46331] and FAB.stacks[46331] > 0) then
+          FAB.stacks[46331] = FAB.stacks[46331] - 1
+          FAB.HandleStackUpdate(46331)
+        end
+        return
+      end
+    end
+
     local effect = FAB.effects[abilityId]
 
     if effect then
 
-      if effect.toggled then
+      if effect.toggled then -- update the highlight of toggled abilities.
         if change == EFFECT_RESULT_FADED
         then UpdateToggledAbility(abilityId, false)
         else UpdateToggledAbility(abilityId, true) end
         return
       end
 
-      if (effectType == DEBUFF) then
+      if (effectType == DEBUFF) then -- if the ability is a debuff, check settings and handle accordingly.
         local tag = unitTag or ''
 
         if ShouldTrackAsDebuff(abilityId, tag) then
@@ -2816,7 +2865,7 @@ local function Initialize()
             effect.endTime = t + 12
           else
 
-            if abilityType == GROUND_EFFECT then
+            if abilityType == GROUND_EFFECT then -- make sure to only track duration of the most recent cast of the ground ability.
               lastAreaTargets[abilityId] = unitId
               if abilityId == 117805 then -- unnerving boneyard sometimes updates to 25s duration, not sure why..
                 effect.endTime = t + 10
@@ -2827,20 +2876,21 @@ local function Initialize()
 
             effect.endTime = endTime
           end
-          if stackCount and stackCount > 0 then
+
+          if stackCount and stackCount > 0 then -- update stacks
             FAB.stacks[effect.id] = stackCount
             FAB.HandleStackUpdate(FAB.stackMap[effect.id])
           end
         else
-          effect.endTime = 0
+          effect.endTime = 0 -- duration too long or too short. don't track.
         end
         UpdateEffect(effect)
 
       elseif (change == EFFECT_RESULT_FADED) then
 
-        if FAB.IsGroupUnit(unitTag) then return end
+        if FAB.IsGroupUnit(unitTag) then return end -- don't track anything on group members.
 
-        if FAB.removeInstantly[abilityId] then
+        if FAB.removeInstantly[abilityId] then -- abilities we want to reset the overlay instantly for when expired.
           effect.endTime = endTime
           UpdateEffect(effect)
           return
@@ -2849,7 +2899,7 @@ local function Initialize()
         stackCount = 0
 
         if abilityId == 122658 and FAB.effects[122658] then
-          FAB.effects[122658].endTime = t
+          FAB.effects[122658].endTime         = t
           FAB.stacks[FAB.stackMap[abilityId]] = stackCount
           FAB.HandleStackUpdate(FAB.stackMap[abilityId])
         end
@@ -3137,21 +3187,36 @@ function FAB.ValidateVariables() -- all about safety checks these days..
 
   if SV.externalBlackListRun == false then
     SV.externalBlackList = { -- just add all resto staff skills by default and player can take it from there.
-      [28385]  = 'Grand Healing',
-      [40058]  = 'Illustrious Healing',
-      [40060]  = 'Healing Springs',
-      [28536]  = 'Regeneration',
-      [40076]  = 'Rapid Regeneration',
-      [40079]  = 'Radiating Regneration',
-      [37232]  = 'Steadfast Ward',
-      [40126]  = 'Healing Ward',
-      [40130]  = 'Ward Ally',
-      [31531]  = 'Force Siphon',
-      [40109]  = 'Siphon Spirit',
-      [40116]  = 'Quick Siphon',
-      [38552]  = 'Panacea',
-      [83850]  = 'Life Giver',
-      [85132]  = 'Lights Champion',
+    [61504] = "Vigor",
+    [28385] = "Grand Healing",
+    [40130] = "Ward Ally",
+    [29224] = "Igneous Shield",
+    [76518] = "Major Brutality",
+    [61665] = "Major Brutality",
+    [61704] = "Minor Endurance",
+    [61694] = "Major Resolve",
+    [83850] = "Life Giver",
+    [31531] = "Force Siphon",
+    [85132] = "Lights Champion",
+    [40109] = "Siphon Spirit",
+    [61693] = "Minor Resolve",
+    [61706] = "Minor Intellect",
+    [37232] = "Steadfast Ward",
+    [61697] = "Minor Fortitude",
+    [61506] = "Echoing Vigor",
+    [92503] = "Major Sorcery",
+    [40116] = "Quick Siphon",
+    [28536] = "Regeneration",
+    [88758] = "Major Resolve",
+    [61687] = "Major Sorcery",
+    [38552] = "Panacea",
+    [61721] = "Minor Protection",
+    [40058] = "Illustrious Healing",
+    [40076] = "Rapid Regeneration",
+    [40060] = "Healing Springs",
+    [186493] = "Minor Protection",
+    [40126] = "Healing Ward",
+    [176991] = "Minor Resolve",
     }
 
     SV.externalBlackListRun = true

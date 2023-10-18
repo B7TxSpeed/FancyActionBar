@@ -107,7 +107,9 @@
       <Dimensions x="50" y="50" />
       <Controls>
 
-        <!-- <Texture name="$(parent)Frame" inherits="FAB_KB_Frame" /> -->
+        <Texture name="$(parent)BG" alpha="1" tier="HIGH" level="4" textureFile="EsoUI/Art/ActionBar/ActionSlot_toggledon.dds" inheritAlpha="false" hidden="true">
+          <AnchorFill/>
+        </Texture>
 
         <Texture name="$(parent)Frame" alpha="1" tier="HIGH" level="6" textureFile="/FancyActionBar+/texture/abilityframe64_up.dds" inherits="ZO_ActionButton_FlipCardControl" inheritAlpha="false" hidden="true">
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT"/>
@@ -116,6 +118,10 @@
 
         <Label name="$(parent)Duration" font="$(BOLD_FONT)|$(KB_24)|thick-outline" tier="HIGH" level="5" wrapMode="TRUNCATE" inheritAlpha="false" verticalAllignment="CENTER" horizontalAllignment="CENTER" hidden="false" text="">
           <Anchor point="CENTER" relativeTo="$(parent)" relativePoint="CENTER" offsetX="-5" offsetY="-3"/>
+        </Label>
+
+        <Label name="$(parent)Stacks" color="FFCC00" font="$(BOLD_FONT)|$(KB_20)|thick-outline" tier="HIGH" level="5" wrapMode="TRUNCATE" inheritAlpha="false" text="">
+          <Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetX="-3" offsety="-1"/>
         </Label>
 
         <Label name="$(parent)Value" color="FFFFFF" font="$(BOLD_FONT)|$(KB_20)|outline" tier="HIGH" level="5" wrapMode="TRUNCATE" inheritAlpha="false" verticalAllignment="BOTTOM" horizontalAllignment="RIGHT" inherits="ZO_ActionButton_FlipCardControl" text="">
@@ -130,12 +136,16 @@
       <Dimensions x="67" y="67" />
       <Controls>
 
-        <!-- <Texture name="$(parent)BG" color="00FF00" alpha="1" tier="HIGH" level="4" textureFile="EsoUI/Art/ActionBar/actionBar_mouseOver.dds" inheritAlpha="false" hidden="true">
+        <Texture name="$(parent)BG" alpha="1" tier="HIGH" level="4" textureFile="EsoUI/Art/ActionBar/ActionSlot_toggledon.dds" inheritAlpha="false" hidden="true">
           <AnchorFill/>
-        </Texture> -->
+        </Texture>
 
         <Label name="$(parent)Duration" font="$(BOLD_FONT)|$(KB_34)|thick-outline" tier="HIGH" level="5" wrapMode="TRUNCATE" inheritAlpha="true" verticalAllignment="CENTER" horizontalAllignment="CENTER" text="">
           <Anchor point="CENTER" relativeTo="$(parent)" relativePoint="CENTER" offsetX="-5" offsetY="-3"/>
+        </Label>
+
+        <Label name="$(parent)Stacks" color="FFCC00" font="$(BOLD_FONT)|$(KB_20)|thick-outline" tier="HIGH" level="5" wrapMode="TRUNCATE" inheritAlpha="false" text="">
+          <Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetX="-3" offsety="-1"/>
         </Label>
 
         <Label name="$(parent)Value" color="FFFFFF" font="$(BOLD_FONT)|$(KB_22)|outline" tier="HIGH" level="5" wrapMode="TRUNCATE" inheritAlpha="false" verticalAllignment="BOTTOM" horizontalAllignment="RIGHT" inherits="ZO_ActionButton_FlipCardControl" text="">
@@ -164,7 +174,7 @@
           <Anchor point="BOTTOM" relativeTo="$(parent)" relativePoint="BOTTOM"/>
         </Label>
 
-        <Label name="$(parent)Stacks" color="FFCC00" font="$(BOLD_FONT)|$(KB_20)|thick-outline" tier="HIGH" level="5" wrapMode="TRUNCATE" inheritAlpha="false" text="">
+        <Label name="$(parent)Stacks" color="FFCC00" font="$(BOLD_FONT)|$(KB_22)|thick-outline" tier="HIGH" level="5" wrapMode="TRUNCATE" inheritAlpha="false" text="">
           <Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetX="-3" offsety="-1"/>
         </Label>
 

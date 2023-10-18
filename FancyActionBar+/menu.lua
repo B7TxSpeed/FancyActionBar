@@ -2699,7 +2699,7 @@ function FAB.BuildMenu(sv, cv, defaults)
             { type = 'submenu',       name = 'Info',
               controls = {
 
-                {	type = 'description',   text = 'Here you can enable the ability timers to track the duration if their tracked effect is gained from an ally.\nYou can also select which effects you do not want to have tracked if you you are not the source.',
+                {	type = 'description',   text = 'Here you can enable the ability timers to track the duration if their tracked effect is gained from an ally.\nYou can also select which effects you do not want to have tracked if you are not the source.',
                 }
               }
             },
