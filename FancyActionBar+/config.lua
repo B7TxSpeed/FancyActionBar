@@ -726,6 +726,8 @@ FAB.specialIds        = {
   [63456]  = true, -- ice comet aoe
   [40493]  = true, -- shooting star called
   [63473]  = true, -- shooting star aoe
+  [86015]  = true, -- deep fissure
+  [178028] = true, -- deep fissure second proc
   [86019]  = true, -- sub assault
   [146919] = true, -- sub assault second proc
   [86175]  = true, -- frozen gate
@@ -851,6 +853,10 @@ FAB.guard             = {
     [61529] = true, -- stalwart guard
     [61536] = true, -- mystic guard
   }
+}
+FAB.deepFissure       = {
+  id1 = 86015,
+  id2 = 178028
 }
 FAB.subAssault        = {
   -- not really needed, but helps a a reference.

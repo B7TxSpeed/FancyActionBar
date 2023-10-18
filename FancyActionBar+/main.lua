@@ -864,6 +864,11 @@ local function FormatTextForDurationOfActiveEffect(fading, effect, duration)
       if delayEnd > 0 then timer = zo_max(0, zo_ceil(duration)) end
     end
 
+    if effect.id == FAB.deepFissure.id1 then
+      FAB.stacks[effect.id] = 0
+      FAB.HandleStackUpdate(effect)
+    end
+
     if effect.id == FAB.subAssault.id1 then
       FAB.stacks[effect.id] = 0
       FAB.HandleStackUpdate(effect)
@@ -1256,7 +1261,7 @@ end
 function UpdateQuickSlotOverlay()                     -- from LUI. update every 500ms
   local t = FAB.qsOverlay.timer
   local slotIndex = GetCurrentQuickslot()
-  local remain, duration, global = GetSlotCooldownInfo(slotIndex)
+  local remain, duration, global = GetSlotCooldownInfo(slotIndex, HOTBAR_CATEGORY_QUICKSLOT_WHEEL)
   if (duration > 5000) then
     t:SetHidden(false)
     if remain > 86400000 then -- more then 1 day
@@ -1272,7 +1277,6 @@ function UpdateQuickSlotOverlay()                     -- from LUI. update every 
     else
       t:SetText(string.format('%.1d', 0.001 * remain))
     end
-    d(t:GetText())
   else
     if not FAB.InMenu() then t:SetText('') end
   end
@@ -2354,6 +2358,12 @@ local function HandleSpecial(id, change, updateTime, beginTime, endTime, unitTag
       FAB.stacks[37475] = FAB.stacks[37475] - 1
       if FAB.stacks[37475] <= 0 then endTime = updateTime end
 
+    elseif id == FAB.deepFissure.id1 then
+      effect = FAB.effects[id]
+      if not FAB.stacks[id] then FAB.stacks[id] = 0 end
+      FAB.stacks[id]  = 2
+      endTime         = updateTime + 9
+
     elseif id == FAB.subAssault.id1 then
       effect = FAB.effects[id]
       if not FAB.stacks[id] then FAB.stacks[id] = 0 end
@@ -2389,6 +2399,17 @@ local function HandleSpecial(id, change, updateTime, beginTime, endTime, unitTag
         end
         FAB.activeTaunts[unitId] = nil
       end
+
+    elseif id == FAB.deepFissure.id1 then
+      effect = FAB.effects[id]
+      if FAB.stacks[id] == 2 then FAB.stacks[id] = 1 end
+
+    elseif id == FAB.deepFissure.id2 then
+      effect = FAB.effects[FAB.deepFissure.id1]
+
+      if effect.endTime <= updateTime
+      then FAB.stacks[FAB.deepFissure.id1] = 0
+      else update = false end
 
     elseif id == FAB.subAssault.id1 then
       effect = FAB.effects[id]
