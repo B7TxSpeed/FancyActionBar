@@ -972,7 +972,14 @@ FAB.fakeClassEffects  = {
   },
 
   -- Necromancer
-  --[5] = {},
+  [5] = {
+    [115924] = { duration = 20, id = 116445 }, -- Shocking Siphon
+    [118008] = { duration = 20, id = 118009 }, -- Mystic Siphon
+    [118763] = { duration = 20, id = 118764 }, -- Detonating Siphon
+    [115926] = { duration = 12, id = 116450 }, -- Restoring Tether
+    [118122] = { duration = 12, id = 118123 }, -- Mortal Coil
+    [118070] = { duration = 12, id = 118071 } -- Braided Tether
+  },
 
   -- Templar
   [6] = {
