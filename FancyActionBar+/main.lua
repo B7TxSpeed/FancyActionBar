@@ -3031,6 +3031,14 @@ local function Initialize()
         UpdateEffect(effect)
       end
     end
+
+    if aId == FAB.graveLordSacrifice.eventId then
+      effect = FAB.effects[FAB.graveLordSacrifice.id]
+      if effect then
+        effect.endTime = time() + FAB.graveLordSacrifice.duration
+        UpdateEffect(effect)
+      end
+    end
   end
 
   local function OnReflect( _, result, _, aName, _, _, _, _, tName, tType, hit, _, _, _, _, tId, aId)
@@ -3145,6 +3153,11 @@ local function Initialize()
   for i in pairs(FAB.needCombatEvent) do
     EM:RegisterForEvent( NAME .. i, EVENT_COMBAT_EVENT, OnCombatEvent)
     EM:AddFilterForEvent(NAME .. i, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, i, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
+  end
+
+  if FAB.graveLordSacrifice then
+    EM:RegisterForEvent( NAME .. "GraveLordSacrifice", EVENT_COMBAT_EVENT, OnCombatEvent)
+    EM:AddFilterForEvent(NAME .. "GraveLordSacrifice", EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, FAB.graveLordSacrifice.eventId, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET)
   end
 
   for i, x in pairs(FAB.reflects) do

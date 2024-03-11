@@ -555,8 +555,7 @@ FAB.abilityConfig     = {
   [117330] = { 114863 }, -- blastbones
   [117690] = { 117691 }, -- blighted blastbones
   [117693] = { 117691 }, -- blighted blastbones
-  [117749] = { 117750 }, -- stalking blastbones
-  [117773] = { 117750 }, -- relentless blastbones --> stalking blastbones
+  [117749] = {        }, -- grave lord's sacrifice
   [115252] = { 115252 }, -- boneyard
   [117805] = { 117805 }, -- unnerving boneyard
   [117850] = { 117850 }, -- avid boneyard
@@ -1058,6 +1057,11 @@ FAB.traps             = {
   --[40385]  = 40382, --barbed trap
   --[40468]  = 40465, --scalding rune
   [61785]  = 32685, -- fossilize
+}
+FAB.graveLordSacrifice = {
+  id = 117749,
+  eventId = 117757,
+  duration = 20,
 }
 FAB.guard             = {
   -- to help identify and update overlays as the slotted id changes depending on link state.
