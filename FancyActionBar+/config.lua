@@ -17,11 +17,14 @@ FAB.abilityConfig     = {
   [83216]  = { 83217 }, -- berserker strike
   [83229]  = { 83230 }, -- onslaught
   [83238]  = { 83239 }, -- berserker rage
+  [217180] = { 38254 }, -- goading smash (scribing) (taunt)
+  [219972] = { 38254 }, -- goading smash (scribing) (taunt)
 
   -- Shield
   [28306]  = { 38254 }, -- puncture (taunt)
   [38250]  = { 38254 }, -- pierce armor (taunt)
   [38256]  = { 38254 }, -- ransack (taunt)
+  [222966] = { 38254 }, -- goading throw (scribing) (taunt)
   [28304]  = { 61723 }, -- low slash (minor maim)
   [38268]  = { 61723 }, -- deep slash (minor maim)
   [38264]  = { 61708 }, -- heroic slash (minor heroism)
@@ -74,6 +77,7 @@ FAB.abilityConfig     = {
   [83465]  = {  55131 }, -- rapid fire (cc immunity)
   [85257]  = {  55131 }, -- toxic barrage (cc immunity)
   [85451]  = {  85458 }, -- ballista
+  [216674] = {  38254 }, -- goading vault (scribing) (taunt)
 
   -- Destruction Staff
   [46340]  = { 100306 }, -- force shock (vAS destro)
@@ -354,11 +358,12 @@ FAB.abilityConfig     = {
   [27706]  = {  27706 }, -- Negate Magic
   [28341]  = {  28341 }, -- Suppression Field
   [28348]  = {  28348 }, -- Absorption Field
-  [23304]  = { 108843 }, -- summon unstable familiar
-  [23316]  = {  88933 }, -- summon volatile familiar
-  [77182]  = {  88933 }, -- volatile pulse
-  [24636]  = {  88937 }, -- summon twilight tormentor
-  [77140]  = {  88937 }, -- twilight tormentor enrage
+  [77182]  = {  77187 },  -- volatile pulse
+  [23316]  = {  77187 },  -- summon volatile familiar
+  [77140]  = {  77354 },  -- twilight tormentor enrage
+  [24636]  = {  77354 },  -- summon twilight tormentor
+  [108840] = { 108842 },  -- summon unstable familiar
+  [23304]  = { 108844 },   -- unstable pulse
   [24326]  = {  24326 }, -- Daedric Curse
   [24330]  = {        }, -- haunting curse - 89491 is second proc
   [24328]  = {  24328 }, -- Daedric Prey
@@ -718,11 +723,15 @@ FAB.debuffIds         = {
   [83216]  = { 83217 }, -- berserker strike
   [83229]  = { 83230 }, -- onslaught
   [83238]  = { 83239 }, -- berserker rage
+  [83223]  = { 83224 }, -- reverse slash
+  [217180] = { 38254 }, -- goading smash (scribing) (taunt)
+  [219972] = { 38254 }, -- goading smash (scribing) (taunt)
 
   -- Shield
   [28306]  = { 38254 }, -- puncture (taunt)
   [38250]  = { 38254 }, -- pierce armor (taunt)
   [38256]  = { 38254 }, -- ransack (taunt)
+  [222966] = { 38254 }, -- goading throw (scribing) (taunt)
   [28304]  = { 61723 }, -- low slash (minor maim)
   [38268]  = { 61723 }, -- deep slash (minor maim)
   [28719]  = { 28720 }, -- shield charge (stun)
@@ -737,6 +746,7 @@ FAB.debuffIds         = {
   [85179]  = {  85182 }, -- thrive in chaos
 
   -- Bow
+  [216674] = {  38254 }, -- goading vault (scribing) (taunt)
   [28879]  = { 113627 }, -- scatter shot (BRP bow)
   [38672]  = { 113627 }, -- magnum shot (BRP bow)
   [38669]  = { 113627 }, -- draining shot (BRP bow)
@@ -966,9 +976,7 @@ FAB.fakeClassEffects  = {
   },
 
   -- Warden
-  [4] = {
-    [86126] = { duration = GetAbilityDuration(86126) / 1000, id = 86126 } -- expansive frost cloak
-  },
+  -- [4] = {},
 
   -- Necromancer
   [5] = {
@@ -1057,6 +1065,10 @@ FAB.traps             = {
   --[40385]  = 40382, --barbed trap
   --[40468]  = 40465, --scalding rune
   [61785]  = 32685, -- fossilize
+}
+FAB.expansiveFrostCloak = {
+  id = 86126,
+  eventId = 88758,
 }
 FAB.graveLordSacrifice = {
   id = 117749,
@@ -1487,9 +1499,7 @@ FAB.defaultCharacter  = {
   -- for character specific ability tracking
   useAccountWide        = true,
 
-  abilityConfig         = {},
   configChanges         = {},
-  abilityConfigUpgraded = false,
 
   hideOnNoTargetGlobal  = false,
   hideOnNoTargetList    = {},
@@ -1502,9 +1512,7 @@ FAB.defaultSettings		= {
   variablesValidated            = false,
   -- ability tracking
 
-  abilityConfig                 = {},
   configChanges                 = {},
-  abilityConfigUpgraded         = false,
 
   externalBuffs                 = false,
   externalBlackList             = {},
