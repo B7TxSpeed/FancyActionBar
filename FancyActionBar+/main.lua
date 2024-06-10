@@ -78,6 +78,7 @@ local DEBUFF                      = BUFF_EFFECT_TYPE_DEBUFF
 -------------------------------------------------------------------------------
 -----------------------------[    Global    ]----------------------------------
 -------------------------------------------------------------------------------
+FAB.customAbilityConfig           = {}     -- custom ability config
 FAB.effects                       = {}    -- currently slotted abilities
 FAB.stacks                        = {}    -- ability id => current stack count
 FAB.activeCasts                   = {}    -- updating timers to account for delay and expiration ( mostly for debugging )
@@ -184,7 +185,6 @@ FAB.constants                     = {     -- all current values for the UI and c
 -----------------------------[    Tables    ]----------------------------------
 -------------------------------------------------------------------------------
 local defaultSettings                   -- default settings variables...
-local abilityConfig               = {}  -- parsed FancyActionBar.abilityConfig.
 local specialIds                  = {}  -- abilities that needs to be updated individually when fired ( cause too special to be tracked by effect changed events, or if I wanna do something more with them )
 local fakes                       = {}  -- problematic abilities from current class and shared skill lines ( mostly ground AoE's and traps )
 local activeFakes                 = {}  -- enables OnCombatEvent to update timers with hard coded durations if the button for the effect has been pressed (:4House:)
@@ -285,9 +285,7 @@ end
 function FAB.PostAbilityConfig()
   d('FAB+ Ability Configuration:')
 
-  local s = SV.abilityConfig
-
-  for skill, id in pairs(s) do
+  for skill, id in pairs(FAB.customAbilityConfig) do
     local v
 
     if type(id) == 'table' then
@@ -382,16 +380,22 @@ function FAB.GetContants()
   return FAB.constants.style
 end
 
-function FAB.GetAbilityConfig()
-  if CV.useAccountWide
-  then return SV.abilityConfig
-  else return CV.abilityConfig end
-end
-
 function FAB.GetAbilityConfigChanges()
   if CV.useAccountWide
   then return SV.configChanges
   else return CV.configChanges end
+end
+
+function FAB.GetAbilityConfigChange(ability)
+  if CV.useAccountWide
+  then return SV.configChanges[ability]
+  else return CV.configChanges[ability] end
+end
+
+function FAB.SetAbilityConfigChange(ability, config)
+  if CV.useAccountWide
+  then SV.configChanges[ability] = config
+  else CV.configChanges[ability] = config end
 end
 
 function FAB.GetHideOnNoTargetGlobalSetting()
@@ -433,7 +437,7 @@ function FAB.SetNoTargetAlpha(alpha)
 end
 
 function FAB.UpdateHideOnNoTargetForSkill(id, hide)
-  local cfg       = abilityConfig[id]
+  local cfg       = FAB.customAbilityConfig[id]
   local effectId  = 0
 
   if cfg ~= nil then
@@ -478,13 +482,13 @@ function FAB.EditCurrentAbilityConfiguration(id, cfg)
 
   if FAB.removeInstantly[cI] then rI = true end
 
-  if type(cfg) == 'table' then  abilityConfig[id] = {cI, true, isToggled, rI}
-  elseif cfg then               abilityConfig[id] = {id, true, isToggled, rI}
-  elseif cfg == false then      abilityConfig[id] = false
-  else                          abilityConfig[id] = nil end
+  if type(cfg) == 'table' then  FAB.customAbilityConfig[id] = {cI, true, isToggled, rI}
+  elseif cfg then               FAB.customAbilityConfig[id] = {id, true, isToggled, rI}
+  elseif cfg == false then      FAB.customAbilityConfig[id] = false
+  else                          FAB.customAbilityConfig[id] = nil end
 
   if id == 31816 then -- configure stone giant
-    abilityConfig[133027] = cfg
+    FAB.customAbilityConfig[133027] = cfg
     if cI == 31816 then
       FAB.stackMap[31816]   = cI
       FAB.stackMap[134336]  = nil
@@ -1120,7 +1124,7 @@ function SlotEffect(index, abilityId)                 -- assign effect and instr
 
   local effectId, duration, custom, toggled, passive, instantFade, ignore
 
-  local cfg    = abilityConfig[abilityId]
+  local cfg    = FAB.customAbilityConfig[abilityId]
   local ignore = false
 
   if cfg == false then ignore = true end
@@ -1403,26 +1407,32 @@ end
 --  Load Saved Ability Configuration
 --  ---------------------------------
 function FAB.BuildAbilityConfig()                     -- Parse FAB.abilityConfig for faster access.
-  local config = FAB.GetAbilityConfig()
-  -- for id, cfg in pairs(FAB.abilityConfig) do
-  -- local debuffs = FAB.constants.hideOnNoTargetList
+  -- Init custom ability config with defaults
+  for id, cfg in pairs(FAB.abilityConfig) do
+    FAB.customAbilityConfig[id] = cfg
+  end
 
-  if config[31816] then -- configure stone giant
-    config[133027] = config[31816]
+  -- Apply changes to custom ability config
+  for id, cfg in pairs(FAB.GetAbilityConfigChanges()) do
+    FAB.customAbilityConfig[id] = cfg
+  end
 
-    if config[31816][1] == 31816 then
-      FAB.stackMap[31816]   = config[31816][1]
+  if FAB.customAbilityConfig[31816] then -- configure stone giant
+    FAB.customAbilityConfig[133027] = FAB.customAbilityConfig[31816]
+
+    if FAB.customAbilityConfig[31816][1] == 31816 then
+      FAB.stackMap[31816]   = FAB.customAbilityConfig[31816][1]
       FAB.stackMap[134336]  = nil
     elseif cI == 134336 then
       FAB.stackMap[31816]   = nil
-      FAB.stackMap[134336]  = config[31816][1]
+      FAB.stackMap[134336]  = FAB.customAbilityConfig[31816][1]
     else
       FAB.stackMap[31816]   = nil
       FAB.stackMap[134336]  = nil
     end
   end
 
-  for id, cfg in pairs(config) do
+  for id, cfg in pairs(FAB.customAbilityConfig) do
 
     local toggled, hide = false, false
 
@@ -1440,10 +1450,10 @@ function FAB.BuildAbilityConfig()                     -- Parse FAB.abilityConfig
 
     if FAB.removeInstantly[cI] then rI = true end
 
-    if type(cfg) == 'table' then  abilityConfig[id] = {cI, true, toggled, rI}
-    elseif cfg then               abilityConfig[id] = {cI, true, toggled, rI}
-    elseif cfg == false then      abilityConfig[id] = false
-    else                          abilityConfig[id] = nil end
+    if type(cfg) == 'table' then  FAB.customAbilityConfig[id] = {cI, true, toggled, rI}
+    elseif cfg then               FAB.customAbilityConfig[id] = {cI, true, toggled, rI}
+    elseif cfg == false then      FAB.customAbilityConfig[id] = false
+    else                          FAB.customAbilityConfig[id] = nil end
   end
 
   -- for id, isToggled in pairs(FAB.toggled) do
@@ -2215,7 +2225,7 @@ local function IdentifyIndex(number, bar)
 end
 
 local function IdCheck(index, id)
-  if abilityConfig[id] and abilityConfig[id] == false then return false end
+  if FAB.customAbilityConfig[id] and FAB.customAbilityConfig[id] == false then return false end
   if slottedIds[index] ~= nil and slottedIds[index].ability ~= slottedIds[index].effect then
     if FAB.toggled[id] then return true end
     if not FAB.traps[id] then return false end
@@ -2737,7 +2747,7 @@ local function Initialize()
       end
 
       if (i and FAB.activeCasts[i] == nil and not FAB.ignore[id]) then -- track when the skill was used and ignore other events for it that is lower than the GCD
-        if (abilityConfig[id] and abilityConfig[id] ~= false) then
+        if (FAB.customAbilityConfig[id] and FAB.customAbilityConfig[id] ~= false) then
           FAB.activeCasts[i] = {slot = index, cast = t, begin = 0, fade = 0 }
         end
       end
@@ -3039,6 +3049,14 @@ local function Initialize()
         UpdateEffect(effect)
       end
     end
+
+    if aId == FAB.expansiveFrostCloak.eventId then
+      effect = FAB.effects[FAB.expansiveFrostCloak.id]
+      if effect then
+        effect.endTime = time() + (GetAbilityDuration(FAB.expansiveFrostCloak.id) / 1000)
+        UpdateEffect(effect)
+      end
+    end
   end
 
   local function OnReflect( _, result, _, aName, _, _, _, _, tName, tType, hit, _, _, _, _, tId, aId)
@@ -3155,6 +3173,11 @@ local function Initialize()
     EM:AddFilterForEvent(NAME .. i, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, i, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
   end
 
+  if FAB.expansiveFrostCloak then
+    EM:RegisterForEvent( NAME .. "ExpansiveFrostCloak", EVENT_COMBAT_EVENT, OnCombatEvent)
+    EM:AddFilterForEvent(NAME .. "ExpansiveFrostCloak", EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, FAB.expansiveFrostCloak.eventId, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
+  end
+
   if FAB.graveLordSacrifice then
     EM:RegisterForEvent( NAME .. "GraveLordSacrifice", EVENT_COMBAT_EVENT, OnCombatEvent)
     EM:AddFilterForEvent(NAME .. "GraveLordSacrifice", EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, FAB.graveLordSacrifice.eventId, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET)
@@ -3183,20 +3206,6 @@ end
 
 function FAB.ValidateVariables() -- all about safety checks these days..
   local d = defaultSettings
-
-  if SV.abilityConfigUpgraded == false then
-    local s = SV.abilityConfig
-
-    for skill, id in pairs(FAB.abilityConfig) do s[skill] = id end
-    SV.abilityConfigUpgraded = true
-  end
-
-  if CV.abilityConfigUpgraded == false then
-    local c = CV.abilityConfig
-
-    for skill, id in pairs(FAB.abilityConfig) do c[skill] = id end
-    CV.abilityConfigUpgraded = true
-  end
 
   if SV.externalBlackListRun == false then
     SV.externalBlackList = { -- just add all resto staff skills by default and player can take it from there.

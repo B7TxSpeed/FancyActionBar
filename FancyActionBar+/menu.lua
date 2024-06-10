@@ -410,7 +410,7 @@ end
 ----------------------------------------------
 local function GetTrackedEffectForAbility(id)
   local effect  = nil
-  local cfg     = FAB.GetAbilityConfig()
+  local cfg     = FAB.customAbilityConfig
   local name    = ''
 
   if cfg[id] then
@@ -608,28 +608,15 @@ local function UpdateEffectForAbility(track, ability, effect)
     config = {effect}
   end
 
-  if not CV.useAccountWide then
-    CV.abilityConfig[ability] = config
-    if track == 1 then
-      CV.configChanges[ability] = nil
-    else
-      CV.configChanges[ability] = config
-    end
-    if ability == 31816 then
-      CV.abilityConfig[133027] = CV.abilityConfig[ability] or nil
-      CV.configChanges[133027] = CV.configChanges[ability] or nil
-    end
+  FAB.customAbilityConfig[ability] = config
+  if track == 1 then
+    FAB.SetAbilityConfigChange(ability, nil)
   else
-    SV.abilityConfig[ability] = config
-    if track == 1 then
-      SV.configChanges[ability] = nil
-    else
-      SV.configChanges[ability] = config
-    end
-    if ability == 31816 then
-      SV.abilityConfig[133027] = SV.abilityConfig[ability] or nil
-      SV.configChanges[133027] = SV.configChanges[ability] or nil
-    end
+    FAB.SetAbilityConfigChange(ability, config)
+  end
+  if ability == 31816 then
+    FAB.customAbilityConfig[133027] = FAB.customAbilityConfig[ability] or nil
+    FAB.SetAbilityConfigChange(133027, FAB.GetAbilityConfigChange(ability) or nil)
   end
 
   ResetUpdateSettings()
