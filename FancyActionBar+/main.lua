@@ -1162,7 +1162,7 @@ function SlotEffect(index, abilityId)                 -- assign effect and instr
   FAB.SetSlottedEffect(index, abilityId, effectId)
 
   if   (toggled == false and ignore == false)
-  then duration = GetAbilityDuration(effectId) / 1000
+  then duration = (GetAbilityDuration(effectId) or 0) / 1000
   else duration = 0 end
 
   local effect = FAB.GetEffect(effectId, true, custom, toggled, ignore, instantFade) -- FAB.effects[effectId]
@@ -2757,7 +2757,7 @@ local function Initialize()
         if E then
           if fakes[i] then activeFakes[i] = true end
           if FAB.activeCasts[E.id] then FAB.activeCasts[E.id].cast = t end
-          local D = E.toggled == true and '0' or tostring(GetAbilityDuration(i) / 1000)
+          local D = E.toggled == true and '0' or tostring((GetAbilityDuration(i) or 0) / 1000)
           dbg('4 [ActionButton%d]<%s> #%d: ' .. D, index, name, E.id)
           -- return
         end
@@ -2775,21 +2775,21 @@ local function Initialize()
           local e = FAB.effects[i]
           if e then
             if fakes[i] then activeFakes[i] = true end
-            dbg('2 [ActionButton%d]<%s> #%d: %0.1fs', index, name, i, e.toggled == true and 0 or GetAbilityDuration(e.id) / 1000)
+            dbg('2 [ActionButton%d]<%s> #%d: %0.1fs', index, name, i, e.toggled == true and 0 or (GetAbilityDuration(e.id) or 0) / 1000)
           end
         else
           if not effect.custom and effect.duration then
             effect.endTime = effect.duration + t
             duration = effect.duration
-            dbg('1 [ActionButton%d]<%s> #%d: %0.1fs', index, name, effect.id, GetAbilityDuration(effect.id) / 1000)
+            dbg('1 [ActionButton%d]<%s> #%d: %0.1fs', index, name, effect.id, (GetAbilityDuration(effect.id) or 0) / 1000)
             UpdateEffect(effect)
           else
             if fakes[id] then activeFakes[id] = true end
-            dbg('0 [ActionButton%d]<%s> #%d: %0.1fs', index, name, effect.id, GetAbilityDuration(effect.id) / 1000)
+            dbg('0 [ActionButton%d]<%s> #%d: %0.1fs', index, name, effect.id, (GetAbilityDuration(effect.id) or 0) / 1000)
           end
         end
       elseif FAB.effects[i] then
-        dbg('? [ActionButton%d]<%s> #%d: %0.1fs', index, name, FAB.effects[i].id, GetAbilityDuration(FAB.effects[i].id) / 1000)
+        dbg('? [ActionButton%d]<%s> #%d: %0.1fs', index, name, FAB.effects[i].id, (GetAbilityDuration(FAB.effects[i].id) or 0) / 1000)
       else
         dbg('[ActionButton%d] #%d: %0.1fs', index, id, GetAbilityDuration(id))
       end
