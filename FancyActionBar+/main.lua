@@ -271,10 +271,20 @@ function FAB.SlashCommand(str)
   end
 end
 
+-- Workaround for scribing skills
+function FAB.GetSlotTrueBoundId(index, bar)
+  local id = GetSlotBoundId(index, bar)
+  local actionType = GetSlotType(index, bar)
+  if actionType == ACTION_TYPE_CRAFTED_ABILITY then
+    id = GetAbilityIdForCraftedAbilityId(id)
+  end
+  return id
+end
+
 local function GetSlotInfoString(index, bar)
   local slot    = index == 8 and "Ult" or tostring(index - 2)
   local string  = '[' .. slot .. '] '
-  local id      = GetSlotBoundId(index, bar)
+  local id      = FAB.GetSlotTrueBoundId(index, bar)
   if id > 0 then
     local name = GetAbilityName(id)
     string = string .. '<' .. name .. '> ' .. id
@@ -504,8 +514,8 @@ function FAB.EditCurrentAbilityConfiguration(id, cfg)
   local currentSlots = {}
 
   for i = MIN_INDEX, MAX_INDEX + 1 do
-    local I0 = GetSlotBoundId(i, 0)
-    local I1 = GetSlotBoundId(i, 1)
+    local I0 = FAB.GetSlotTrueBoundId(i, 0)
+    local I1 = FAB.GetSlotTrueBoundId(i, 1)
     if I0 == id then currentSlots[i] = true end
     if I1 == id then currentSlots[i + SLOT_INDEX_OFFSET] = true end
   end
@@ -688,7 +698,7 @@ function FAB.GetIdForDestroSkill(id, bar)             -- cause too hard for game
 end
 
 function UpdateInactiveBarIcon(index, bar)            -- for bar swapping.
-  local id      = GetSlotBoundId(index, bar)
+  local id      = FAB.GetSlotTrueBoundId(index, bar)
   local iconId  = 0 -- GetEffectiveAbilityIdForAbilityOnHotbar(id, bar)
   local btn     = FAB.buttons[index + SLOT_INDEX_OFFSET]
   local icon    = ''
@@ -1225,11 +1235,11 @@ end
 function SlotEffects()                                -- slot effects for primary and backup bars.
   if currentHotbarCategory == HOTBAR_CATEGORY_PRIMARY or currentHotbarCategory == HOTBAR_CATEGORY_BACKUP then
     for i = MIN_INDEX, MAX_INDEX do
-      SlotEffect(i, GetSlotBoundId(i, HOTBAR_CATEGORY_PRIMARY))
-      SlotEffect(i + SLOT_INDEX_OFFSET, GetSlotBoundId(i, HOTBAR_CATEGORY_BACKUP))
+      SlotEffect(i, FAB.GetSlotTrueBoundId(i, HOTBAR_CATEGORY_PRIMARY))
+      SlotEffect(i + SLOT_INDEX_OFFSET, FAB.GetSlotTrueBoundId(i, HOTBAR_CATEGORY_BACKUP))
     end
-    SlotEffect(ULT_INDEX, GetSlotBoundId(ULT_INDEX, HOTBAR_CATEGORY_PRIMARY))
-    SlotEffect(ULT_INDEX + SLOT_INDEX_OFFSET, GetSlotBoundId(ULT_INDEX, HOTBAR_CATEGORY_BACKUP))
+    SlotEffect(ULT_INDEX, FAB.GetSlotTrueBoundId(ULT_INDEX, HOTBAR_CATEGORY_PRIMARY))
+    SlotEffect(ULT_INDEX + SLOT_INDEX_OFFSET, FAB.GetSlotTrueBoundId(ULT_INDEX, HOTBAR_CATEGORY_BACKUP))
   else
     -- Unslot all effects, if we are on a special bar.
     for i = MIN_INDEX, ULT_INDEX do
@@ -1377,8 +1387,8 @@ function FAB.UpdateUltimateCost()                     -- manual ultimate value u
     return cost
   end
 
-  cost1 = ResolveUltCost(GetSlotBoundId(ULT_INDEX, HOTBAR_CATEGORY_PRIMARY))
-  cost2 = ResolveUltCost(GetSlotBoundId(ULT_INDEX, HOTBAR_CATEGORY_BACKUP))
+  cost1 = ResolveUltCost(FAB.GetSlotTrueBoundId(ULT_INDEX, HOTBAR_CATEGORY_PRIMARY))
+  cost2 = ResolveUltCost(FAB.GetSlotTrueBoundId(ULT_INDEX, HOTBAR_CATEGORY_BACKUP))
 
   current, _, _ = GetUnitPower('player', POWERTYPE_ULTIMATE)
   FAB.UpdateUltimateValueLabels(true, current)
@@ -2731,7 +2741,7 @@ local function Initialize()
   local function OnAbilityUsed(_, n)
     if (n >= MIN_INDEX and n <= ULT_INDEX) then -- or n == (ULT_INDEX + SLOT_INDEX_OFFSET) then
       -- local duration = t + (GetActionSlotEffectTimeRemaining(n, currentHotbarCategory) / 1000)
-      local id     = GetSlotBoundId(n, currentHotbarCategory)
+      local id     = FAB.GetSlotTrueBoundId(n, currentHotbarCategory)
       local index  = IdentifyIndex(n, currentHotbarCategory)
       local name   = GetAbilityName(id)
       local t      = time()

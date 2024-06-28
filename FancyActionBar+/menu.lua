@@ -780,7 +780,7 @@ local function GetCurrentFrontBarInfo()
   local list = ''
 
   for i = 3, 8 do
-    local id    = GetSlotBoundId(i, 0)
+    local id    = FAB.GetSlotTrueBoundId(i, 0)
     local line  = 'empty'
     local name  = ''
 
@@ -803,7 +803,7 @@ local function GetCurrentBackBarInfo()
   local list = ''
 
   for i = 3, 8 do
-    local id    = GetSlotBoundId(i, 1)
+    local id    = FAB.GetSlotTrueBoundId(i, 1)
     local line  = 'empty'
     local name  = ''
 
